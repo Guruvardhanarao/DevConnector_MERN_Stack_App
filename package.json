@@ -1,0 +1,19 @@
+{
+  "name": "devconnector",
+  "version": "1.0.0",
+  "description": "Social network for developers",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guruvardhanarao/DevConnector_MERN_Stack_App.git"
+  },
+  "author": "Guru Vardhanarao Panidam",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Guruvardhanarao/DevConnector_MERN_Stack_App/issues"
+  },
+  "homepage": "https://github.com/Guruvardhanarao/DevConnector_MERN_Stack_App#readme"
+}
