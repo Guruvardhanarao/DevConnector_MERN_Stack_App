@@ -1,6 +1,16 @@
 const express = require('express');
+const mongoose = require('mongoose');
 
 const app = express();
+
+//DB Config
+const dbUri = require('./config/keys').mongoDBUri;
+
+// Mongo DB connection
+mongoose
+    .connect(dbUri)
+    .then(() => console.log('MongoDB connected sucessfully...'))
+    .catch(err => console.log(err));
 
 app.get('/', (req, res) => res.send('Hello world'));
 
