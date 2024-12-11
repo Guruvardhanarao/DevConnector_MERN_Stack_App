@@ -7,6 +7,7 @@ const passport = require('passport')
 const User = require('./../../models/User');
 const keys = require('../../config/keys');
 const validateRegisterInput = require('../../validators/register');
+const validateLoginInput = require('../../validators/login');
 
 const router = express.Router();
 router.get('/test', (req, res) => res.json({msg: 'test users...'}));
@@ -14,7 +15,6 @@ router.get('/test', (req, res) => res.json({msg: 'test users...'}));
 router.post('/register', (req, res) => {
     
     const {errors, isValid} = validateRegisterInput(req.body);
-    console.log(isValid);
     if(isValid){
        return res.status(400).json(errors);
     }
@@ -22,7 +22,10 @@ router.post('/register', (req, res) => {
     
     User.findOne({email:req.body.email})
         .then(email => {
-            if(email) return res.status(400).json({error: 'Email already exists!'});
+            if(email){ 
+                errors.email = 'Email already registered!';
+                return res.status(400).json(errors);
+            };
             const avatar = gravatar.url(req.body.email, {s: '400', r: 'pg', d: '400'});
 
             const newUser = new User({
@@ -49,13 +52,15 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
     const {email, password} = req.body;
-    console.log(password);
+    const {errors, isValid}  = validateLoginInput(req.body);
+
     //Find user by email
     User.findOne({email})
         .then(user => {
             // check for email matches
             if(!user){
-                res.status(404).json({email : 'User not found'});
+                errors.email = 'User not found'
+                res.status(404).json(errors);
             }
 
             // check password matches
@@ -63,7 +68,8 @@ router.post('/login', (req, res) => {
                 .then(isMatch => {
                     //password not matched
                     if(!isMatch){
-                        return res.status(400).json({password: 'Wrong password, please try again!'});
+                        errors.passport = 'Wrong password, please try again!'
+                        return res.status(400).json(errors);
                     }
 
                     //Sign json web token
@@ -86,12 +92,12 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/current', passport.authenticate('jwt', {session:false}), (req, res) => {
-    console.log('/current', req);
-    res.json({user: {
-        id:req.user.id,
-        name:req.user.name,
-        email:req.user.email
-    }
+    res.json({
+        user: {
+            id:req.user.id,
+            name:req.user.name,
+            email:req.user.email
+        }
     });
 });
 
