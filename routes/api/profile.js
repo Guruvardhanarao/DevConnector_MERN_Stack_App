@@ -3,6 +3,7 @@ const passport = require('passport');
 
 const User = require('../../models/User');
 const Profile = require('../../models/Profile');
+const validateProfileInput = require('../../validators/profile');
 
 const router = express.Router();
 router.get('/test', (req, res) => res.json({msg: 'test profile...'}));
@@ -14,6 +15,7 @@ router.get('/', passport.authenticate('jwt', {session:false}), (req, res) => {
     const errors = {};
 
     Profile.findOne({user:req.user.id})
+        .populate('user', ['name', 'avatar'])
         .then(profile => {
             if(!profile){
                 errors.noprofile = "There is no profile found for this User.";
@@ -28,6 +30,14 @@ router.get('/', passport.authenticate('jwt', {session:false}), (req, res) => {
 // @Desc create or update current profile
 // @Access private
 router.post('/', passport.authenticate('jwt', {session:false}), (req, res) => {
+
+    const {isValid, errors} = validateProfileInput(req.body);
+
+    //check for validation errors
+    if(!isValid){
+       return res.status(400).json(errors);
+    }
+
     //map request body data
     const profileFields = {};
 
@@ -52,6 +62,7 @@ router.post('/', passport.authenticate('jwt', {session:false}), (req, res) => {
     if(req.body.instagram) profileFields.social.instagram = req.body.instagram;
     if(req.body.twitter) profileFields.social.twitter = req.body.twitter;
 
+
     //check profile exists
     Profile.findOne({user: req.user.id})
         .then(profile => {
@@ -69,11 +80,11 @@ router.post('/', passport.authenticate('jwt', {session:false}), (req, res) => {
                 Profile.findOne({handle: profileFields.handle})
                     .then(profile => {
                         if(profile) {
-                           return res.status(400).json({error: 'That handle already exists'});
+                            res.status(400).json({error: 'That handle already exists'});
                         }
-
+                        
                         //save new profile
-                        new Profile(profile).save().then(profile => res.json(profile))
+                        new Profile(profileFields).save().then(profile => res.json(profile))
                 })
             }
         })

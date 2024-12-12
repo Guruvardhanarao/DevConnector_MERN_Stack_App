@@ -11,7 +11,6 @@ const opts = {
 
 module.exports = passport => {
     passport.use(new JwtStrategy(opts, (jwt_payload, done)=> {
-        console.log("jwt payload", jwt_payload);
         //find the user specified in the token
         User.findById(jwt_payload.id)
             .then(user => {
