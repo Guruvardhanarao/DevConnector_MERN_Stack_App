@@ -45,7 +45,7 @@ router.get('/handle/:handle', (req, res) => {
 });
 
 // @Route api/profile/user/:user_id
-// @Desc get user data by user id
+// @Desc get profile by user id
 // @Access Public
 router.get('/user/:user_id', (req, res) => {
     const errors = {};
@@ -59,6 +59,23 @@ router.get('/user/:user_id', (req, res) => {
             res.status(200).json(profile);
         })
         .catch(err => res.status(404).json({profile: 'There is no profile for this user'}))
+});
+
+// @Route api/profile/all
+// @Desc get all profiles
+// @Access Public
+router.get('/all', (req, res) => {
+    const errors = {};
+    Profile.find()
+        .populate('user', ['name', 'avatar'])
+        .then(profiles => {
+            if(!profiles){
+                errors.profiles = 'No profiles found'
+                res.status(404).json(errors)
+            }
+            res.status(200).json(profiles);
+        })
+        .catch(err => res.status(404).json({profiles: 'No profiles found'}))
 });
 
 // @Route POST api/profile
