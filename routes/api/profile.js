@@ -26,10 +26,45 @@ router.get('/', passport.authenticate('jwt', {session:false}), (req, res) => {
         .catch(err => console.log(err));
 });
 
+// @Route GET api/profile/handle/:handle
+// @Desc get profile by handle name
+// @Access Public
+router.get('/handle/:handle', (req, res) => {
+    const errors = {};
+
+    Profile.findOne({handle: req.params.handle})
+            .populate('user', ['name', 'avatar'])
+            .then(profile => {
+                if(!profile){
+                    errors.noprofile = 'Profile not found';
+                    res.status(404).json(errors);
+                }
+                res.status(200).json(profile);
+            })
+            .catch(err => res.status(404).json({profile: 'There is no profile for this user'}))
+});
+
+// @Route api/profile/user/:user_id
+// @Desc get user data by user id
+// @Access Public
+router.get('/user/:user_id', (req, res) => {
+    const errors = {};
+    Profile.findOne({user: req.params.user_id})
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if(!profile){
+                errors.profile = 'Profile not found';
+                res.status(404).json(errors);
+            }
+            res.status(200).json(profile);
+        })
+        .catch(err => res.status(404).json({profile: 'There is no profile for this user'}))
+});
+
 // @Route POST api/profile
 // @Desc create or update current profile
 // @Access private
-router.post('/', passport.authenticate('jwt', {session:false}), (req, res) => {
+router.post('/', (req, res) => {
 
     const {isValid, errors} = validateProfileInput(req.body);
 
