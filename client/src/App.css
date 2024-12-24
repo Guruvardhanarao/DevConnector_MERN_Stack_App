@@ -1,0 +1,23 @@
+.landing-page {
+  position: relative;
+  flex: 1;
+  /* This makes the landing page take up the remaining space */
+  background: url('../src/img/bg.png') no-repeat center center;
+  background-size: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Black overlay with 50% opacity */
+}
+
+.content {
+  position: relative;
+  /* Ensures the content is above the overlay */
+  z-index: 2;
+}
