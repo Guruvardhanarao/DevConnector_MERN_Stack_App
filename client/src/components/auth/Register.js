@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import axios from "axios";
 import classnames from "classnames";
 import { connect } from "react-redux";
-import { useSelector, useDispatch } from "react-redux";
-
-import { autenticate, register } from "../../reducers/authReducer";
+import { signupUser } from "../../thunks/signupUser";
+import { clearError } from "../../reducers/errorReducer";
+import withNavigate from "../withNavigate";
 
 class Register extends Component {
   constructor() {
@@ -14,7 +13,7 @@ class Register extends Component {
       email: "",
       password: "",
       password2: "",
-      errors: {},
+      error: {},
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -34,21 +33,15 @@ class Register extends Component {
       password2: this.state.password2,
     };
 
-    this.props.register(newUser);
-    console.log(this.props.auth.user);
-    // axios
-    //   .post("/api/users/register", newUser)
-    //   .then((res) => {
-    //     console.log(res.data);
-    //   })
-    //   .catch((err) => {
-    //     this.setState({ errors: err.response.data });
-    //     console.log(err);
-    //   });
+    this.props.signupUser(newUser).then((result) => {
+      if (result.meta.requestStatus === "fulfilled") {
+        this.props.navigate("/login");
+      }
+    });
   }
 
   render() {
-    const { errors } = this.state;
+    const { error } = this.props;
 
     return (
       <div className="container d-flex justify-content-center align-items-center mt-5">
@@ -65,15 +58,15 @@ class Register extends Component {
                   <input
                     type="text"
                     className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.name,
+                      "is-invalid": error.name,
                     })}
                     placeholder="Name"
                     name="name"
                     value={this.state.name}
                     onChange={this.handleChange}
                   />
-                  {errors.name && (
-                    <div className="invalid-feedback">{errors.name}</div>
+                  {error.name && (
+                    <div className="invalid-feedback">{error.name}</div>
                   )}
                 </div>
               </div>
@@ -82,15 +75,15 @@ class Register extends Component {
                   <input
                     type="email"
                     className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.email,
+                      "is-invalid": error.email,
                     })}
                     placeholder="Email ID"
                     name="email"
                     value={this.state.email}
                     onChange={this.handleChange}
                   />
-                  {errors.email && (
-                    <div className="invalid-feedback">{errors.email}</div>
+                  {error.email && (
+                    <div className="invalid-feedback">{error.email}</div>
                   )}
                 </div>
               </div>
@@ -99,15 +92,15 @@ class Register extends Component {
                   <input
                     type="password"
                     className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.password,
+                      "is-invalid": error.password,
                     })}
                     placeholder="Password"
                     name="password"
                     value={this.state.password}
                     onChange={this.handleChange}
                   />
-                  {errors.password && (
-                    <div className="invalid-feedback">{errors.password}</div>
+                  {error.password && (
+                    <div className="invalid-feedback">{error.password}</div>
                   )}
                 </div>
               </div>
@@ -116,15 +109,15 @@ class Register extends Component {
                   <input
                     type="password"
                     className={classnames("form-control form-control-lg", {
-                      "is-invalid": errors.password2,
+                      "is-invalid": error.password2,
                     })}
                     placeholder="Confirm Password"
                     name="password2"
                     value={this.state.password2}
                     onChange={this.handleChange}
                   />
-                  {errors.password2 && (
-                    <div className="invalid-feedback">{errors.password2}</div>
+                  {error.password2 && (
+                    <div className="invalid-feedback">{error.password2}</div>
                   )}
                 </div>
               </div>
@@ -147,11 +140,14 @@ class Register extends Component {
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
+  error: state.error,
 });
 
 const mapDispatchToProps = {
-  autenticate,
-  register,
+  signupUser,
+  clearError,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Register);
+export default withNavigate(
+  connect(mapStateToProps, mapDispatchToProps)(Register)
+);

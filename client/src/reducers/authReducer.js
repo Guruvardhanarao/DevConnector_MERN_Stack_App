@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { signupUser } from "../thunks/signupUser";
 
 const initialState = {
   isAuthenticated: false,
@@ -8,16 +9,20 @@ const initialState = {
 const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
-  reducers: {
-    autenticate: (state) => {
-      state.isAuthenticated = true;
-    },
-    register: (state, action) => ({
-      ...state,
-      user: action.payload,
-    }),
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(signupUser.pending, (state) => {
+        state.isAuthenticated = false;
+      })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.isAuthenticated = false;
+      });
   },
 });
 
-export const { autenticate, register } = authSlice.actions;
 export default authSlice.reducer;
